@@ -62,7 +62,34 @@ export const StartPage = () => {
     useEffect(() => {
         resetFormValues();
         cleanError();
-    }, [authPage])
+    }, [authPage]);
+
+
+    useEffect(() => {
+      
+        const onBlur = () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth',
+            })
+        };
+
+        const inputs = document.querySelectorAll('input').forEach((input) => {
+            input.addEventListener('blur', onBlur);
+        });
+
+
+
+        return () => {
+            inputs.forEach((input) => {
+                input.removeEventListener('blur', onBlur);
+            })
+        }
+
+
+
+    }, [])
+    
    
     
 
