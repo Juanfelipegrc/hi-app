@@ -63,38 +63,20 @@ export const useActiveChat = () => {
             
             userChatsSnap.docs.forEach(async(doc) => {
 
-                if(doc.data().sender.id === senderUid){
-                    const contactFilter = contacts.find(contact => {
-                        return contact.id === doc.data().receiver.id
-                    }) 
+                const contactFilter = contacts.find(contact => {
+                    return contact.id === doc.data().receiver.id
+                }) 
 
-                    
+                
 
-                    await updateDoc(doc.ref, {
-                        receiver: {
-                            displayName: doc.data().receiver.displayName,
-                            email: doc.data().receiver.email,
-                            id: doc.data().receiver.id,
-                            nickname: contactFilter?.nickname || doc.data().sender.displayName,
-                        }
-                    });
-
-
-                } else {
-                    const contactFilter = contacts.find(contact => {
-                        return contact.id === doc.data().sender.id
-                    }) 
-                    
-                   
-                    await updateDoc(doc.ref, {
-                        sender: {
-                            displayName: doc.data().sender.displayName,
-                            email: doc.data().sender.email,
-                            id: doc.data().sender.id,
-                            nickname: contactFilter?.nickname || doc.data().sender.displayName,
-                        }
-                    });
-                };
+                await updateDoc(doc.ref, {
+                    receiver: {
+                        displayName: doc.data().receiver.displayName,
+                        email: doc.data().receiver.email,
+                        id: doc.data().receiver.id,
+                        nickname: contactFilter?.nickname || doc.data().receiver.displayName,
+                    }
+                });
 
                
 
@@ -366,7 +348,8 @@ export const useActiveChat = () => {
             if(contactExistsInContactsRecieverSnap.exists()){
                 return contactExistsInContactsRecieverSnap.data().nickname;
             } else {
-                return senderDisplayName;
+                console.log(userActive.displayName)
+                return userActive.displayName;
             }
         }
 
