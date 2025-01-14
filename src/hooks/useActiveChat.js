@@ -348,8 +348,7 @@ export const useActiveChat = () => {
             if(contactExistsInContactsRecieverSnap.exists()){
                 return contactExistsInContactsRecieverSnap.data().nickname;
             } else {
-                console.log(userActive.displayName)
-                return userActive.displayName;
+                return senderDisplayName;
             }
         }
 
