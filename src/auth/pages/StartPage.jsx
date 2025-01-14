@@ -74,7 +74,9 @@ export const StartPage = () => {
             })
         };
 
-        const inputs = document.querySelectorAll('input').forEach((input) => {
+        const inputs = document.querySelectorAll('input');
+
+        inputs.forEach((input) => {
             input.addEventListener('blur', onBlur);
         });
 
