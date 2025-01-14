@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { StartPage } from '../auth'
 import { AddAContact, Chat, EditProfile, HomePage } from '../pages'
 import { useAuth } from '../hooks'
+import { useLockScroll } from '../helpers'
 
 export const AppRouter = () => {
 
@@ -13,7 +14,14 @@ export const AppRouter = () => {
 
         validateLogged();
 
-    }, [])
+    }, []);
+
+
+    useLockScroll(status === 'not-authenticated')
+
+
+
+
     
     
 
