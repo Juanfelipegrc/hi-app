@@ -32,8 +32,8 @@ export const AppRouter = () => {
                 </>
                 :
                 <>
-                    <Route path='/enter-number' element={<StartPage/>}/>
-                    <Route path='*' element={<Navigate to='/enter-number'/>}/>
+                    <Route path='/' element={<StartPage/>}/>
+                    <Route path='*' element={<Navigate to='/'/>}/>
                 </>
                 
             }
