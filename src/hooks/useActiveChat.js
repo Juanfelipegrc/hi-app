@@ -201,6 +201,8 @@ export const useActiveChat = () => {
     // SET LAST MESSAGE
 
     const getLastMessage = async(receiverUidLM = '') => {
+
+      
         
         let lastMessageSender;
         let lastMessageReceiver;
@@ -213,17 +215,22 @@ export const useActiveChat = () => {
         
 
 
+
         const querySender = query(lastMessageSenderRef, orderBy('message.timestamp', 'desc'), limit(1));
         const queryReceiver = query(lastMessageReceiverRef, orderBy('message.timestamp', 'desc'), limit(1));
 
         const lastMessageSenderSnap = await getDocs(querySender);
         const lastMessageReceiverSnap = await getDocs(queryReceiver);
 
+       
+
         if(!lastMessageSenderSnap.empty){
            lastMessageSender = {
                 content: lastMessageSenderSnap.docs[0].data().message.content,
                 sender: lastMessageSenderSnap.docs[0].data().sender.id,
            };
+
+
         } else {
             lastMessageSender = {
                 content: 'No messages yet',
@@ -237,6 +244,8 @@ export const useActiveChat = () => {
                 content: lastMessageReceiverSnap.docs[0].data().message.content,
                 sender: lastMessageReceiverSnap.docs[0].data().sender.id,
            };
+
+      
         } else {
             lastMessageReceiver = {
                 content: 'No messages yet',
@@ -278,7 +287,9 @@ export const useActiveChat = () => {
  
 
 
-                        lastMessage = await getLastMessage(doc.data().receiver.id).lastMessageSender;
+                        lastMessage = (await getLastMessage(doc.data().receiver.id)).lastMessageSender;
+
+     
 
                         
                         if(lastMessage != undefined){
@@ -296,7 +307,7 @@ export const useActiveChat = () => {
                             
                             receiverChatSnap.docs.forEach(async(doc) => {
 
-                                lastMessage = (await getLastMessage(doc.data().receiver.id)).lastMessageReceiver;
+                                lastMessage = (await getLastMessage(doc.data().sender.id)).lastMessageReceiver;
 
                                 if(lastMessage != undefined){
                                     await updateDoc(doc.ref, {
@@ -502,10 +513,10 @@ export const useActiveChat = () => {
     // OBTAIN MESSAGES
     useEffect(() => {
         
-        const unsuscribe = getMessagesDB();
+        const unsubscribe = getMessagesDB();
 
         return () => {
-            unsuscribe();
+            unsubscribe();
         }
         
     }, [senderUid, activeChatState.uid]);
