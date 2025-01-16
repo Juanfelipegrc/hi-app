@@ -26,14 +26,14 @@ export const StartPage = () => {
 
        if(authPage === 'register'){
             if(displayName.length <= 2){
-                errors.displayNameError = 'very short name';
+                errors.displayNameError = 'name is too short';
             }
             if(!/\d/.test(passwordRegister)) {
                 errors.passwordError = 'password must include a number';
                 
             };
-            if(passwordRegister.length < 10) {
-                errors.passwordError = 'very short password';
+            if(passwordRegister.length < 8) {
+                errors.passwordError = 'password is too short (minimum 8 characters)';
                 
             };
        }
