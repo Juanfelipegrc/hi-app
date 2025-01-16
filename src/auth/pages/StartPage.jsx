@@ -175,7 +175,7 @@ export const StartPage = () => {
                                 </div>
 
                                 <div className='w-full flex justify-center'>
-                                    <p>Do you have already account? <Link className='text-blue-700 underline underline-offset-2' onClick={() => setAuthPage('login')}>Login</Link> </p>
+                                    <p>Already have an account? <Link className='text-blue-700 underline underline-offset-2' onClick={() => setAuthPage('login')}>Login</Link> </p>
                                 </div>
                                 
                             </form>
