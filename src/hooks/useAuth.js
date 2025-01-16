@@ -67,7 +67,7 @@ export const useAuth = () => {
 
         const {displayName, uid} = res;
 
-        console.log(res)
+   
 
         dispatch(login({email, displayName, uid}));
 
