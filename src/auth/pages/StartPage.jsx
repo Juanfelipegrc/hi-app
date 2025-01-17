@@ -61,6 +61,7 @@ export const StartPage = () => {
 
     useEffect(() => {
         resetFormValues();
+        setValidationsErrors([]);
         cleanError();
     }, [authPage]);
 
