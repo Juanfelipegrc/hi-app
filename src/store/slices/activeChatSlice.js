@@ -11,6 +11,7 @@ export const activeChatSlice = createSlice({
         uid: '',
         messages: [],
         chats: [],
+        messageState: '',
     },
     reducers: {
         setActiveChat: (state, {payload}) =>{

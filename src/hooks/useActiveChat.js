@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { FirebaseDB } from "../firebase/config";
 import { collection, setDoc, doc, getDoc, getDocs, query, orderBy, onSnapshot, updateDoc, limit} from "firebase/firestore";
 import { useAuth } from "./useAuth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAddContact } from "./useAddContact";
 
 
 export const useActiveChat = () => {
  
     const activeChatState = useSelector(state => state.activeChat);
+    const [messageSending, setMessageSending] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const {displayName: senderDisplayName, email: senderEmail, uid: senderUid, contacts} = useAuth();
@@ -453,12 +454,15 @@ export const useActiveChat = () => {
             }
         };
 
+        setMessageSending(true);
+
 
         await createNewChatDB(activeChatState);
 
         await setDoc(senderMessage, messageData);
         await setDoc(receiverMessage, messageData);
 
+        setMessageSending(false);
     };
 
 
@@ -551,6 +555,7 @@ export const useActiveChat = () => {
         getChatsDB,
         getMessagesDB,
         clearMessages,
+        messageSending
     }
 
 }

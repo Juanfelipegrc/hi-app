@@ -13,7 +13,7 @@ const initialFormValue = {
 
 export const Chat = () => {
 
-    const {nickname, messages, createMessage, clearMessages, getMessagesDB} = useActiveChat();
+    const {nickname, messages, createMessage, clearMessages, getMessagesDB, messageSending} = useActiveChat();
 
     const {message, onInputChange, resetFormValues} = useForm(initialFormValue);
 
@@ -21,7 +21,13 @@ export const Chat = () => {
 
     const messagesEndRef = useRef(null);
 
+    const inputRef = useRef(null);
+
     const navigate = useNavigate();
+
+
+    
+
 
     const scrollToBottom = () => {
         if(messagesEndRef.current){
@@ -37,9 +43,11 @@ export const Chat = () => {
     
 
     const onSubmitForm = async(event) => {
+        let clonedMessage = '';
         event.preventDefault();
-        await createMessage(message);
+        clonedMessage = message;
         resetFormValues();
+        await createMessage(clonedMessage);
         setTimeout(() => {
             scrollToBottom();
         }, 500);
@@ -69,7 +77,16 @@ export const Chat = () => {
 
            
 
-    }, [])
+    }, []);
+
+    useEffect(() => {
+
+
+        if(!messageSending && inputRef.current){
+            inputRef.current.focus();
+        }
+    }, [messageSending])
+    
     
 
     const navigateHome = () => {
@@ -151,15 +168,27 @@ export const Chat = () => {
                         onSubmit={onSubmitForm}
                     >
 
-                        <input 
-                            name='message'
-                            type="text"
-                            className='py-4 px-3 focus-visible:outline-slate-900 rounded-full w-full mx-5'
-                            autoComplete='off'
-                            placeholder='Message...' 
-                            value={message}
-                            onChange={onInputChange}
-                        />
+                        {
+                            !messageSending? (
+                                <input 
+                                    name='message'
+                                    ref={inputRef}
+                                    type="text"
+                                    className='py-4 px-3 focus-visible:outline-slate-900 rounded-full w-full mx-5'
+                                    autoComplete='off'
+                                    placeholder={'Message...'} 
+                                    value={message}
+                                    onChange={onInputChange}
+                                />
+                            )
+
+                            :
+                            (
+                                <h3 className='font-bold text-3xl text-slate-900 text-center animate__animated animate__fadeInLeft animate__faster'>
+                                    SENDING...
+                                </h3>
+                            )
+                        }
 
                     </form>
 
