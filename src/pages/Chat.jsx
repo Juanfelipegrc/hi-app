@@ -111,7 +111,7 @@ export const Chat = () => {
 
     
         <div className='overflow-hidden'>
-            <div className="w-full h-svh animate__animated animate__fadeInRight animate__faster">
+            <div className="w-full h-svh animate__animated animate__fadeIn animate__faster">
 
                 {/* CHAT HEADER */}
                 <div className='w-full py-3 flex justify-center items-center gap-4 fixed top-0 right-0 left-0 bg-gray-100'>
