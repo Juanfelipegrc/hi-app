@@ -494,7 +494,7 @@ export const useActiveChat = () => {
 
         
 
-    }, [activeChatState.chats?.length, contacts?.length]);
+    }, [senderUid]);
 
     // OBTAIN MESSAGES
     useEffect(() => {
