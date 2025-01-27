@@ -519,7 +519,7 @@ export const useActiveChat = () => {
 
         obtainLastMessage();
 
-    }, [activeChatState.messages.length]);
+    }, [activeChatState.uid]);
     
 
 
@@ -541,7 +541,7 @@ export const useActiveChat = () => {
             unsubscribeContacts();
         }
 
-    }, [contacts.length, senderUid])
+    }, [senderUid])
 
 
 
