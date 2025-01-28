@@ -11,7 +11,7 @@ export const ChatCover = ({chat}) => {
 
   const onActiveChat = () => {
       
-      onSetActiveChat(displayName, email, nickname, id, uid);
+      onSetActiveChat({displayName, email, nickname, id, uid});
 
   };
 

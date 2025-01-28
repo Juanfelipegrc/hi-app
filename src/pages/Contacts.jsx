@@ -1,8 +1,9 @@
 import React from 'react'
-import { ContactCover } from './ContactCover'
-import { useAuth } from '../../hooks'
+import { ContactCover } from '../components';
+import { useAuth } from '../hooks';
 
-export const ContactList = () => {
+
+export const Contacts = () => {
 
   const {contacts} = useAuth();
 

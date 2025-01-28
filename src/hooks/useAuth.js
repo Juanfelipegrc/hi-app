@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux"
 import { loginWithEmailAndPassword, registerWithEmailAndPassword } from "../firebase/providers";
 import {FirebaseDB} from '../firebase/config';
-import { checkingCredentials, login, logout, setActiveChat, setContacts, setError } from "../store/slices";
+import { checkingCredentials, login, logout, setError } from "../store/slices";
 import { doc, setDoc } from "firebase/firestore";
 
 
@@ -80,15 +80,6 @@ export const useAuth = () => {
     const onLogoutUser = () => {
         dispatch(logout());
         localStorage.removeItem('userLogged');
-        dispatch(setActiveChat({
-            nickname: '',
-            email: '',
-            displayName: '',
-            id: '',
-            uid: '',
-            messages: [],
-            chats: [],
-        }));
     };
 
 

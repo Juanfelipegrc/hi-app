@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useActiveChat, useForm } from '../hooks'
 import { Message } from '../components'
 import { useDispatch } from 'react-redux'
-import { setActiveChat } from '../store/slices'
+
 
 
 const initialFormValue = {
@@ -13,7 +13,7 @@ const initialFormValue = {
 
 export const Chat = () => {
 
-    const {nickname, messages, createMessage, clearMessages, getMessagesDB, messageSending} = useActiveChat();
+    const {nickname, messages, createMessage, clearMessages, getMessagesDB, messageSending, cleanActiveChat} = useActiveChat();
 
     const {message, onInputChange, resetFormValues} = useForm(initialFormValue);
 
@@ -24,6 +24,7 @@ export const Chat = () => {
     const inputRef = useRef(null);
 
     const navigate = useNavigate();
+
 
 
     
@@ -69,11 +70,9 @@ export const Chat = () => {
                 scrollToBottom();
             }, 100);
 
-            const obtainMessages = async() => {
-                await getMessagesDB();
-            }
+            getMessagesDB();
 
-            obtainMessages();
+            
 
            
 
@@ -91,15 +90,7 @@ export const Chat = () => {
 
     const navigateHome = () => {
         clearMessages();
-        dispatch(setActiveChat({
-                    nickname: '',
-                    email: '',
-                    displayName: '',
-                    id: '',
-                    uid: '',
-                    messages: [],
-                    chats: [],
-                }));
+        cleanActiveChat();
         navigate('/');
     }
 

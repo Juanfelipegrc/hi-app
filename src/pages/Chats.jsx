@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { ChatCover } from './ChatCover'
-import { useActiveChat } from '../../hooks';
+import { ChatCover } from '../components';
+import { useActiveChat } from '../hooks';
 
 
-export const ChatList = () => {
+
+export const Chats = () => {
 
   const {chats} = useActiveChat();
 
