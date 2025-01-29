@@ -1,19 +1,35 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAuth } from '../hooks';
 import { ButtonAddToContact} from '../components';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 export const HomePage = () => {
 
     const [activeScreen, setActiveScreen] = useState('chats');
-    const [hideHeader, setHideHeader] = useState(false);
     const {onLogoutUser} = useAuth();
 
     const navigate = useNavigate();
 
-    const onSetHideHeader = (value) => {
-        setHideHeader(value)
-    }
+    const {pathname} = useLocation();
+
+   
+
+
+  
+    useEffect(() => {
+      
+        if(pathname === '/'){
+            setActiveScreen('chats');
+        } else if(pathname === '/contacts'){
+            setActiveScreen('contacts');
+        } else if(pathname === '/settings'){
+            setActiveScreen('settings');
+        };
+
+    }, [activeScreen])
+    
+
+  
 
 
     
@@ -26,7 +42,7 @@ export const HomePage = () => {
     
         <div className="h-svh bg-white animate__animated animate__fadeIn">
 
-            <div className={`w-full text-center border-b py-4 border-gray-400 ${hideHeader? 'hidden' : ''}`}>
+        <div className='w-full text-center border-b py-4 border-gray-400'>
                 <p className='text-slate-900 font-semibold'>{activeScreen.toUpperCase()}</p>
             </div>
 
@@ -55,7 +71,7 @@ export const HomePage = () => {
                 </div>
                 <div 
                     className='grow flex justify-center'
-                    onClick={() => setActiveScreen('states')}
+                    
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" height="2rem" viewBox="0 -960 960 960" width="2rem" fill="#0f172a"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-43 9-84.5t26-80.5l62 62q-8 26-12.5 51.5T160-480q0 134 93 227t227 93q134 0 227-93t93-227q0-134-93-227t-227-93q-27 0-52.5 4.5T377-783l-61-61q40-18 80-27t84-9q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80ZM220-680q-25 0-42.5-17.5T160-740q0-25 17.5-42.5T220-800q25 0 42.5 17.5T280-740q0 25-17.5 42.5T220-680Zm260 200Z"/></svg>
                 </div>
