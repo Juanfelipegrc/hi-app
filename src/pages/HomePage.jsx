@@ -26,8 +26,9 @@ export const HomePage = () => {
             setActiveScreen('settings');
         };
 
-    }, [activeScreen])
-    
+    }, [pathname]);
+
+
 
   
 
