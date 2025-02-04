@@ -60,6 +60,7 @@ export const useAddContact = () => {
                     return {
                         ok: true,
                         msg: `User ${name} created correctly`,
+                        user: userData[0]
                     }
     
                 } else {

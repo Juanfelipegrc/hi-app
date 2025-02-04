@@ -1,34 +1,51 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { ChatCover } from '../components';
-import { useActiveChat } from '../hooks';
+import {  useAuth } from '../hooks';
 
 
 
 export const Chats = () => {
 
-  const {chats} = useActiveChat();
+  const {chats, chatsLoading} = useAuth();
 
+
+  
   
 
 
   return (
     <>
     
-        <div className={`w-full animate__animated animate__fadeInLeft animate__faster ${chats.length === 0? 'flex items-center justify-center h-[32rem]' : ''}`}>
+        <div className={`w-full animate__animated animate__fadeInLeft animate__faster ${chats?.length === 0? 'flex items-center justify-center h-svh' : ''}`}>
           {
-            chats?.map((chat, index) => (
-              <ChatCover key={index} chat={chat}/>
-            ))
-          }
+            chatsLoading?
+            (
+              <div className='w-full h-svh flex items-center justify-center'>
+                <div className='border-8 border-slate-900 border-t-gray-300 animate-spin rounded-full w-12 h-12 mb-36'>
 
-          {
-            chats.length === 0?
-            <>
-              <p className='text-slate-900 font-medium'>No chats yet</p>
-            </>
-
+                </div>
+              </div>
+            )
             :
-            <></>
+            <>
+            
+              {
+                chats?.map((chat, index) => (
+                  <ChatCover key={index} chat={chat}/>
+                ))
+              }
+              
+              {
+                chats?.length === 0?
+                <>
+                  <p className='text-slate-900 font-medium mb-36'>No chats yet</p>
+                </>
+              
+                :
+                <></>
+              }
+            
+            </>
           }
         </div>
 
@@ -36,3 +53,5 @@ export const Chats = () => {
     </>
   )
 }
+
+

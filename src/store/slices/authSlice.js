@@ -9,6 +9,7 @@ export const authSlice = createSlice({
         uid: '',
         email: '',
         contacts: [],
+        chats: [],
         error: '',
     },
     reducers: {
@@ -17,6 +18,7 @@ export const authSlice = createSlice({
             state.displayName = payload.displayName;
             state.uid = payload.uid;
             state.email = payload.email;
+            state.chats = payload.chats;
             state.error = '';
         },
 
@@ -26,21 +28,26 @@ export const authSlice = createSlice({
             state.uid = '';
             state.email = '';
             state.contacts = [];
+            state.chats = [];
         },
 
         checkingCredentials: (state, {payload}) => {
-            state.status = 'checking'
+            state.status = 'checking';
         },
 
         setError: (state, {payload}) => {
-            state.error = payload
+            state.error = payload;
         },
         
         setContacts: (state, {payload}) => {
-            state.contacts = payload
-        }
-    }
+            state.contacts = payload;
+        },
+        
+        setChats: (state, {payload}) => {
+            state.chats = payload;
+        },
+    }   
 });
 
 
-export const { login, logout, checkingCredentials, setError, setContacts} = authSlice.actions;
+export const { login, logout, checkingCredentials, setError, setContacts, setChats} = authSlice.actions;

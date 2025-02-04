@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import { useAuth } from '../hooks';
-import { ButtonAddToContact} from '../components';
+import { useActiveChat, useAuth } from '../hooks';
+import { ButtonAddToContact, ChatLg} from '../components';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+
 
 export const HomePage = () => {
 
     const [activeScreen, setActiveScreen] = useState('chats');
+
+    const [activeChatValidation, setActiveChatValidation] = useState(false);
+
     const {onLogoutUser} = useAuth();
+
+    const activeChatState = useActiveChat();
 
     const navigate = useNavigate();
 
@@ -30,7 +36,37 @@ export const HomePage = () => {
 
 
 
+    useEffect(() => {
+
+
+
+       const activeChatValidator = (event) => {
+            const saveContact = event.detail || '';
+            setActiveChatValidation(!!saveContact?.uid);
+
+       };
+
+       window.addEventListener('activeChatUpdate', activeChatValidator);
+
+        const saveContact = JSON.parse(localStorage.getItem('activeChat')) || '';
+
+        setActiveChatValidation(!!saveContact?.uid);
+
+
+       return () => {
+            window.removeEventListener('activeChatUpdate', activeChatValidator);    
+        }
+
+            
+
+        
+      
+    }, [])
+
   
+    
+   
+    
 
 
     
@@ -41,7 +77,7 @@ export const HomePage = () => {
     <>
     
     
-        <div className="h-svh bg-white animate__animated animate__fadeIn">
+        <div className="h-svh overflow-hidden bg-white animate__animated animate__fadeIn">
 
         <div className='w-full text-center border-b py-4 border-gray-400'>
                 <p className='text-slate-900 font-semibold'>{activeScreen.toUpperCase()}</p>
@@ -51,7 +87,25 @@ export const HomePage = () => {
 
             {/* SCREENS */}
 
-            <Outlet/>
+            <div className='h-svh lg:grid lg:grid-cols-2'>
+
+                <div className='h-svh overflow-y-auto lg:col-span-1'>
+                    <Outlet/>
+                </div>
+
+                <div className={`h-svh hidden md:hidden  lg:flex ${!activeChatValidation? 'justify-center items-center' : ''} col-span-1`}>
+                    {
+                        !activeChatValidation?
+                        <h1 className='font-medium mb-36 text-slate-900'>No chat selected</h1>
+
+                        :
+                        <div className='w-full h-full'>
+                            <ChatLg/>
+                        </div>
+                    }
+                </div>
+
+            </div>
 
 
 
@@ -63,7 +117,7 @@ export const HomePage = () => {
 
             {/* TOOLS BAR */}
 
-            <div className='fixed bottom-3 right-0 left-0 py-3 mx-4 flex bg-gray-300 rounded-full shadow-md'>
+            <div className='fixed bottom-3 right-0 md:right-0 lg:right-[50%] left-0 py-3 mx-4 flex bg-gray-300 rounded-full shadow-md'>
                 <div 
                     className='grow flex justify-center'
                     onClick={() => navigate('/')}

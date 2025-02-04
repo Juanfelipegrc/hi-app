@@ -3,7 +3,6 @@ import { FirebaseDB } from "../firebase/config";
 import { collection, setDoc, doc, getDoc, getDocs, query, orderBy, onSnapshot, updateDoc, limit} from "firebase/firestore";
 import { useAuth } from "./useAuth";
 import { useEffect, useState } from "react";
-import { useAddContact } from "./useAddContact";
 
 
 export const useActiveChat = () => {
@@ -15,139 +14,99 @@ export const useActiveChat = () => {
         id: '',
         uid: '',
         messages: [],
-        chats: [],
         messageState: '',
     })
     const [messageSending, setMessageSending] = useState(false);
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
     const navigate = useNavigate();
     const {displayName: senderDisplayName, email: senderEmail, uid: senderUid, contacts} = useAuth();
-    const {onSetContacts} = useAddContact();
+    
 
     
         // ON SET ACTIVE CHAT
     
-    const onSetActiveChat = (payload) => {
+    const onSetActiveChat = async(payload) => {
+        
+        
+        if(!payload.uid) return;
 
-        const LCStorage = JSON.parse(localStorage.getItem('activeChat'));
+        const messagesRef = collection(FirebaseDB, `users/${senderUid}/chats/${senderUid}_${payload.uid}/messages`);
 
+        const q = query(messagesRef, orderBy('message.timestamp', 'asc'));
 
-        if(LCStorage){
-            setActiveChatState(LCStorage);
-            return;
-        }
+        const messages = await getDocs(q);
+        
+        let messagesData = [];
 
-        const newState ={
-            ...activeChatState,
-            ...payload,
+        if(!messages.empty){
+            messagesData = messages.docs.map(doc => {
+                return {
+                    id: doc.id,
+                    ...doc.data()
+                };
+            })
         };
 
-        setActiveChatState(newState);
+        const newState = {
+            nickname: payload.nickname || '',
+            email: payload.email || '',
+            displayName: payload.displayName || '',
+            id: payload.id || '',
+            uid: payload.uid || '',
+            messages: messagesData,
+            messageState: '',
+        };
 
         localStorage.setItem('activeChat', JSON.stringify(newState));
 
-        navigate(`/chat/${payload.nickname}`);
+            const event = new CustomEvent('activeChatUpdate', {detail: newState});
+
+            window.dispatchEvent(event);
+            
+
+
+            if(screenWidth <= 1024){
+                navigate(`/chat/${payload.nickname}`);
+            }
+
+
     };
+    
+
+    
+ 
+
+
+
+    // CLEAN ACTIVE CHAT
+
 
     const cleanActiveChat = () => {
-        setActiveChatState({
+
+        const emptyChat = {
             nickname: '',
             email: '',
             displayName: '',
             id: '',
             uid: '',
             messages: [],
-            chats: [],
             messageState: '',
-        });
+        }
 
-        localStorage.removeItem('activeChat');
+        localStorage.setItem('activeChat', JSON.stringify(emptyChat));
+        setActiveChatState(emptyChat);
+
+        const event = new CustomEvent('activeChatUpdate', {detail: emptyChat});
+
+        window.dispatchEvent(event);
+        
+
+        
     }
 
 
+ 
 
-    const setMessages = (payload) => {
-        setActiveChatState((prevState) => ({
-            ...prevState,
-            messages: payload,
-        }));
-    };
-
-    const setChats = (payload) => {
-        setActiveChatState((prevState) => ({
-            ...prevState,
-            chats: payload,
-        }));
-    };
-
-
-
-
-
-    
-    
-    // GET CONTACTS
-
-    const getContacts = () => {
-        
-
-        const userRef = collection(FirebaseDB, `users/${senderUid}/contacts`);
-
-
-        const unsubscribe = onSnapshot(userRef, (snapshot) => {
-            const contacts = snapshot.docs.map((doc) => {
-                return {
-                    id: doc.id,
-                    ...doc.data()
-                };
-            });
-
-            onSetContacts(contacts)
-        });
-
-
-        return unsubscribe;
-    }
-
-    
-
-    // UPDATE NICKNAMES
-
-    const updateChatsNicknames = async() => {
-
-
-
-        const userChats = collection(FirebaseDB, `users/${senderUid}/chats`);
-        const userChatsSnap = await getDocs(userChats);
-        
-
-
-
-        if(!userChatsSnap.empty){
-            
-            userChatsSnap.docs.forEach(async(doc) => {
-
-                const contactFilter = contacts.find(contact => {
-                    return contact.id === doc.data().receiver.id
-                }) 
-
-                
-
-                await updateDoc(doc.ref, {
-                    receiver: {
-                        displayName: doc.data().receiver.displayName,
-                        email: doc.data().receiver.email,
-                        id: doc.data().receiver.id,
-                        nickname: contactFilter?.nickname || doc.data().receiver.displayName,
-                    }
-                });
-
-               
-
-            })
-
-        };
-
-    };
 
 
     
@@ -159,97 +118,78 @@ export const useActiveChat = () => {
 
     const getMessagesDB = () => {
 
-
-        const messagesRef = collection(FirebaseDB, `users/${senderUid}/chats/${senderUid}_${activeChatState.uid}/messages`);
-
-        const q = query(messagesRef, orderBy('message.timestamp', 'asc'));
-        
-        const unsuscribe = onSnapshot(q, (snapshot) => {
-
-            const messages = snapshot.docs.map(doc => {
-                return {
-                    id: doc.id,
-                    ...doc.data()
-                }
-            });
-
+  
             
-            setMessages(messages);
+            const messagesRef = collection(FirebaseDB, `users/${senderUid}/chats/${senderUid}_${activeChatState?.uid}/messages`);
 
+            const q = query(messagesRef, orderBy('message.timestamp', 'asc'));
             
-            
-            
-        });
+            const unsubscribe = onSnapshot(q, (snapshot) => {
 
-        return unsuscribe;
-
-    };
-
-
-
-    // GET CHATS
-
-
-
-    const getChatsDB = () => {
-
-        
-        const chatRef = collection(FirebaseDB, `users/${senderUid}/chats`);
-
-        
-        const unsubscribe = onSnapshot(chatRef, (snapshot) => {
-        
-                const chats = snapshot.docs.map((doc) => {
-                    
-                    
-                    const {receiver, lastMessage} = doc.data();
-
-
-                        return {
-                            id: doc.id,
-                            lastMessage,
-                            ...receiver,
-                   };
-
-
-        
+                const messages = snapshot.docs.map(doc => {
+                    return {
+                        id: doc.id,
+                        ...doc.data()
+                    }
                 });
 
-            
 
-                setChats(chats);
+                if(messages.length === 0) return;
+               
+                const prevState = JSON.parse(localStorage.getItem('activeChat'));
+
+                if(JSON.stringify(prevState?.messages) === JSON.stringify(messages)) return;
+
+                const newState = {
+                    ...prevState,
+                    messages,
+                }
+
+
+
+                localStorage.setItem('activeChat', JSON.stringify(newState));
                 
+                
+                setTimeout(() => {
+                    const event = new CustomEvent('activeChatUpdate', {detail: newState});
 
+                    window.dispatchEvent(event);
+                }, 0);
+                    
+                
         
-        });
+                
+            });
 
-        return unsubscribe;
-        
+            return unsubscribe;
+
+       
+
     };
 
 
-    // CLEAR MESSAGES
+    
 
-    const clearMessages = () => {
-        setMessages([]);
-    }
-    
-    // 
-    
+
+
+
+
     
     
     // SET LAST MESSAGE
 
     const getLastMessage = async() => {
 
+
+
       
         
         let lastMessageSender;
         let lastMessageReceiver;
 
-        if(activeChatState.uid.length === 0) return;
+        if(activeChatState?.uid?.length === 0) return;
 
-        const receiverRefForPath = activeChatState.uid;
+        const receiverRefForPath = activeChatState?.uid;
 
         const lastMessageSenderRef = collection(FirebaseDB, `users/${senderUid}/chats/${senderUid}_${receiverRefForPath}/messages`);
 
@@ -314,7 +254,7 @@ export const useActiveChat = () => {
         if(!lastMessageSenderSnap.empty){
             if(lastMessageSender != undefined){
                 await updateDoc(chatSenderRef, {
-                    lastMessage: lastMessageSender,
+                    lastMessage: {...lastMessageSender},
                 });
                 
             }
@@ -323,7 +263,7 @@ export const useActiveChat = () => {
         if(!lastMessageReceiverSnap.empty){
             if(lastMessageReceiver != undefined){
                 await updateDoc(chatReceiverRef, {
-                    lastMessage: lastMessageReceiver,
+                    lastMessage: {...lastMessageReceiver},
                 })
             }
         }
@@ -333,20 +273,37 @@ export const useActiveChat = () => {
     };
 
 
+
+
+
+
+
+
+    // MONITORING LATEST MESSAGES
+
     const monitoringLatestMessages = () => {
-      
+
 
             const senderChatRef = collection(FirebaseDB, `users/${senderUid}/chats`);
 
+            let messagesUnsubscriptions = new Map();
+
             const unsubscribe = onSnapshot(senderChatRef, (snapshot) => {
                 snapshot.docChanges().forEach(async(change) => {
+  
                     if(change.type === 'modified' || change.type === 'removed') {
 
-                        const messageRef = collection(FirebaseDB, `${change.doc.ref.path}/messages`);
+                        const chatPath = change.doc.ref.path;
+
+                        const messageRef = collection(FirebaseDB, `${chatPath}/messages`);
 
                         const queryMessageRef = query(messageRef, orderBy('message.timestamp', 'desc'), limit(1));
+
+                        if(messagesUnsubscriptions.has(chatPath)){
+                            messagesUnsubscriptions.get(chatPath)();
+                        };
                         
-                        onSnapshot(queryMessageRef, async(messageSnapshot) => {
+                        const messageUnsubscription = onSnapshot(queryMessageRef, async(messageSnapshot) => {
 
                             const messages = messageSnapshot.docs.map(doc => {
                                 return {
@@ -354,6 +311,8 @@ export const useActiveChat = () => {
                                     ...doc.data(),
                                 }
                             });
+
+                            
                             if(messages.length > 0){
                                 const lastMessage = messages[0].message;
 
@@ -371,17 +330,25 @@ export const useActiveChat = () => {
                                 });
                             }
                         });
-
-                        
-
-                            
-                }});
+                    
+                        messagesUnsubscriptions.set(chatPath, messageUnsubscription);
+                    }
+            
+                });
             });
             
             
-            return unsubscribe;
+            return () => {
+                messagesUnsubscriptions.forEach((unsubs) => unsubs());
+                unsubscribe();
+            };
 
     };
+
+
+
+
+
     
 
 
@@ -480,11 +447,19 @@ export const useActiveChat = () => {
         
         
 
-        setChats([...(activeChatState.chats ?? []), chatDataSender]);
+
         await setDoc(senderRef, chatDataSender);
         await setDoc(receiverRef, chatDataReceiver);
 
     }
+
+
+
+
+
+
+
+
 
     // CREATE MESSAGE
      
@@ -543,54 +518,48 @@ export const useActiveChat = () => {
     // USEEFFECTS
 
 
+    
 
-    // CLEAN ACTIVE CHAT
+
+
+
+    // GET SAVED CONTACT (ACTIVE CHAT)
     
     useEffect(() => {
 
-      const LCStorage = JSON.parse(localStorage.getItem('activeChat'));
+        const savedContact = JSON.parse(localStorage.getItem('activeChat'));
 
 
-        if(LCStorage && LCStorage.uid != activeChatState.uid){
-            setActiveChatState(LCStorage);
-        }
-    }, [activeChatState.uid]);
+        if(savedContact && savedContact?.uid ){
+  
+            setActiveChatState(savedContact);
+        };
+    }, []);
 
     
 
 
-
-    // OBTAIN CHATS
     
 
-    useEffect(() => {
 
-        if(senderUid.length === 0) return;
-       
-        const unsubscribeChats = getChatsDB();
-
-
-        return () => {
-            unsubscribeChats();
-        }
-
-        
-
-    }, [senderUid]);
 
     // OBTAIN MESSAGES
+
     useEffect(() => {
 
-        if(senderUid.length === 0) return;
+        if(!senderUid || !activeChatState?.uid ) return;
+
+
+        const unsubscribe = getMessagesDB();
 
         
-        const unsubscribe = getMessagesDB();
+
 
         return () => {
             unsubscribe();
         }
         
-    }, [senderUid, activeChatState.uid]);
+    }, [senderUid, activeChatState?.uid]);
 
 
 
@@ -614,38 +583,69 @@ export const useActiveChat = () => {
 
 
     // OBTAIN LAST MESSAGE
+
     useEffect(() => {
 
         if(senderUid.length === 0) return;
+
+        
 
       
         getLastMessage();
 
-    }, [senderUid, activeChatState.uid, activeChatState.messages.length]);
+    }, [senderUid, activeChatState?.uid, activeChatState?.messages?.length]);
     
 
 
-    // OBTAIN NICKNAMES
 
-    useEffect(() => {
+    // ACTIVE CHAT UPDATE BY THE LOCALSTORAGE
 
-        if(senderUid.length === 0) return;
-        
-        const unsubscribeContacts = getContacts();
+     useEffect(() => {
+    
+    
+    
+        const handleActiveChat = (event) => {
 
-        
+            const updatedChat = event.detail;
 
-        const updateNicknames = async() => {
-            await updateChatsNicknames();
-        };
-
-        updateNicknames();
-
-        return () => {
-            unsubscribeContacts();
+            setActiveChatState(updatedChat);
         }
+           
+    
+           window.addEventListener('activeChatUpdate', handleActiveChat);
+    
+    
+           return () => {
+                window.removeEventListener('activeChatUpdate', handleActiveChat);    
+            }
+    
+                
+    
 
-    }, [senderUid])
+          
+        }, []);
+
+
+
+        useEffect(() => {
+          
+
+            const onResizeScreenWith = () => {
+                setScreenWidth(window.innerWidth);   
+            };
+            
+            window.addEventListener('resize', onResizeScreenWith);
+
+
+            return () => {
+                window.removeEventListener('resize', onResizeScreenWith);
+            }
+
+
+        }, [])
+        
+
+    
 
 
 
@@ -656,11 +656,10 @@ export const useActiveChat = () => {
         onSetActiveChat,
         createNewChatDB,
         createMessage,
-        getChatsDB,
         getMessagesDB,
-        clearMessages,
         messageSending,
         cleanActiveChat,
+        screenWidth
     }
 
 }

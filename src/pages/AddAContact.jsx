@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAddContact, useForm } from '../hooks';
+import { useActiveChat, useAddContact, useAuth, useForm } from '../hooks';
 import Swal from 'sweetalert2';
 
 const initialForm = {
@@ -11,10 +11,16 @@ const initialForm = {
 export const AddAContact = () => {
 
   const [contactStatus, setContactStatus] = useState({});
-  const [validationErrors, setValidationErrors] = useState({})
+  const [validationErrors, setValidationErrors] = useState({});
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const navigate = useNavigate();
   const {email, nickname, onInputChange, resetFormValues} = useForm(initialForm);
+  const {chats} = useAuth();
   const {onAddContact} = useAddContact();
+  const {onSetActiveChat} = useActiveChat();
+
+
+
 
 
 
@@ -54,12 +60,56 @@ export const AddAContact = () => {
         if(result.isConfirmed){
           navigate('/')
         } else{
-          navigate(`/chat/${nickname}`)
+
+          const {displayName: displayNameRes, email: emailRes, uid: uidRes, nickname: nicknameRes} = res.user;
+
+          if(chats?.length != 0) {
+            const chatSelected = chats?.find((chat) => {
+              return chat.email === email
+            });
+
+            console.log(chatSelected)
+  
+            if(chatSelected){
+              onSetActiveChat({...chatSelected, uid: chatSelected.id})
+            } else {
+              onSetActiveChat({displayName: displayNameRes, email: emailRes, uid: uidRes, nickname: nicknameRes, id: uidRes});
+            }
+
+          } else {
+
+
+            
+            onSetActiveChat({displayName: displayNameRes, email: emailRes, uid: uidRes, nickname: nicknameRes, id: uidRes});
+          };
+
+          if(screenWidth < 1024){
+            navigate(`/chat/${nickname}`);
+          } else {
+            navigate('/');
+          }
+        
         }
       });
     }
    
-  }
+  };
+
+
+  useEffect(() => {
+    
+    const onResizeScreenWidth = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+
+    window.addEventListener('resize', onResizeScreenWidth);
+  
+    return () => {
+      window.removeEventListener('resize', onResizeScreenWidth);
+    }
+  }, [])
+  
 
 
 
@@ -83,7 +133,7 @@ export const AddAContact = () => {
             <input 
               name='email'
               type="text"
-              className='py-3 focus-visible:outline-slate-900 rounded-full ps-2 w-full'
+              className='py-3 bg-white focus-visible:outline-slate-900 rounded-full ps-2 w-full'
               placeholder='Email'
               onChange={onInputChange} 
               value={email}
@@ -92,7 +142,7 @@ export const AddAContact = () => {
             <input 
               name='nickname'
               type="text"
-              className='py-3 focus-visible:outline-slate-900 rounded-full ps-2 w-full'
+              className='py-3 bg-white focus-visible:outline-slate-900 rounded-full ps-2 w-full'
               placeholder='Name' 
               onChange={onInputChange}
               value={nickname}

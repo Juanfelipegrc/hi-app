@@ -3,7 +3,7 @@ import { UserProfilePicture } from '../assets'
 import { Link, useNavigate } from 'react-router-dom'
 import { useActiveChat, useForm } from '../hooks'
 import { Message } from '../components'
-import { useDispatch } from 'react-redux'
+
 
 
 
@@ -16,8 +16,6 @@ export const Chat = () => {
     const {nickname, messages, createMessage, clearMessages, getMessagesDB, messageSending, cleanActiveChat} = useActiveChat();
 
     const {message, onInputChange, resetFormValues} = useForm(initialFormValue);
-
-    const dispatch = useDispatch();
 
     const messagesEndRef = useRef(null);
 
@@ -89,9 +87,8 @@ export const Chat = () => {
     
 
     const navigateHome = () => {
-        clearMessages();
-        cleanActiveChat();
         navigate('/');
+        cleanActiveChat();
     }
 
 
@@ -165,7 +162,7 @@ export const Chat = () => {
                                     name='message'
                                     ref={inputRef}
                                     type="text"
-                                    className='py-4 px-3 focus-visible:outline-slate-900 rounded-full w-full mx-5'
+                                    className='py-4 px-3 bg-gray-50 focus-visible:outline-slate-900 rounded-full w-full mx-5'
                                     autoComplete='off'
                                     placeholder={'Message...'} 
                                     value={message}
