@@ -11,7 +11,7 @@ export const ButtonAddToContact = () => {
     
     
         <button 
-            className='fixed bottom-24 right-7 md:right-7 lg:right-[52%] rounded-full bg-gray-300 p-4 shadow-md' 
+            className='fixed bottom-24 right-7 md:right-7 lg:right-[52%] cursor-pointer rounded-full bg-gray-300 p-4 shadow-md' 
             id='expand-button'
             onClick={() => navigate('/add-contact')}
         >

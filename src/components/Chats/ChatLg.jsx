@@ -14,7 +14,7 @@ const initialFormValue = {
 
 export const ChatLg = () => {
 
-    const {nickname, messages, createMessage, clearMessages, getMessagesDB, messageSending, cleanActiveChat, screenWidth} = useActiveChat();
+    const {nickname, messages, createMessage, getMessagesDB, messageSending, cleanActiveChat, screenWidth} = useActiveChat();
 
     const {message, onInputChange, resetFormValues} = useForm(initialFormValue);
 
@@ -115,7 +115,7 @@ export const ChatLg = () => {
                         <a 
                             onClick={navigateHome}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" height="1.3rem" viewBox="0 -960 960 960" width="1.3rem" fill="#0f172a"><path d="M640-80 240-480l400-400 71 71-329 329 329 329-71 71Z"/></svg>
+                            <svg className='cursor-pointer' xmlns="http://www.w3.org/2000/svg" height="1.3rem" viewBox="0 -960 960 960" width="1.3rem" fill="#0f172a"><path d="M640-80 240-480l400-400 71 71-329 329 329 329-71 71Z"/></svg>
                         </a>
                     </div>
 
@@ -189,7 +189,7 @@ export const ChatLg = () => {
 
                         <div className='me-5'>
                             <button 
-                                className='w-14 h-14 relative bg-slate-900 flex justify-center items-center rounded-full'
+                                className='w-14 h-14 relative bg-slate-900 flex justify-center items-center rounded-full cursor-pointer'
                                 onClick={onSubmitForm}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" height="1.75rem" viewBox="0 -960 960 960" width="1.75rem" fill="#ffff"><path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z"/></svg>

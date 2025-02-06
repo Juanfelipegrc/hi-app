@@ -61,26 +61,22 @@ export const AddAContact = () => {
           navigate('/')
         } else{
 
-          const {displayName: displayNameRes, email: emailRes, uid: uidRes, nickname: nicknameRes} = res.user;
+          const {displayName: displayNameRes, email: emailRes, uid: uidRes} = res.user;
 
           if(chats?.length != 0) {
             const chatSelected = chats?.find((chat) => {
               return chat.email === email
             });
 
-            console.log(chatSelected)
   
             if(chatSelected){
-              onSetActiveChat({...chatSelected, uid: chatSelected.id})
+              onSetActiveChat({...chatSelected, uid: chatSelected.id, nickname})
             } else {
-              onSetActiveChat({displayName: displayNameRes, email: emailRes, uid: uidRes, nickname: nicknameRes, id: uidRes});
+              onSetActiveChat({displayName: displayNameRes, email: emailRes, uid: uidRes, nickname: nickname, id: uidRes});
             }
 
-          } else {
-
-
-            
-            onSetActiveChat({displayName: displayNameRes, email: emailRes, uid: uidRes, nickname: nicknameRes, id: uidRes});
+          } else {  
+            onSetActiveChat({displayName: displayNameRes, email: emailRes, uid: uidRes, nickname: nickname, id: uidRes});
           };
 
           if(screenWidth < 1024){
@@ -156,12 +152,12 @@ export const AddAContact = () => {
               <input 
                 type="button"
                 onClick={() => navigate('/')}
-                className='bg-gray-300 w-32 h-10 rounded-full text-slate-900 font-semibold'
+                className='bg-gray-300 w-32 h-10 rounded-full text-slate-900 font-semibold cursor-pointer'
                 value='Cancel'
               />
               <input 
                 type="submit"
-                className='bg-gray-300 w-32 h-10 rounded-full text-slate-900 font-semibold'
+                className='bg-gray-300 w-32 h-10 rounded-full text-slate-900 font-semibold cursor-pointer'
                 value='Save contact'
               />
             </div>

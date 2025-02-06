@@ -596,7 +596,7 @@ export const useActiveChat = () => {
     }, [senderUid, activeChatState?.uid, activeChatState?.messages?.length]);
     
 
-
+    
 
     // ACTIVE CHAT UPDATE BY THE LOCALSTORAGE
 

@@ -3,7 +3,7 @@ import { loginWithEmailAndPassword, registerWithEmailAndPassword } from "../fire
 import {FirebaseDB} from '../firebase/config';
 import { checkingCredentials, login, logout, setChats, setContacts, setError } from "../store/slices";
 import { collection, doc, getDocs, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 
 export const useAuth = () => {
@@ -15,7 +15,6 @@ export const useAuth = () => {
     
     const dispatch = useDispatch();
 
-    const [chatsLoading, setChatsLoading] = useState(false);
 
     
 
@@ -124,87 +123,109 @@ export const useAuth = () => {
 
 
 
-    const updateChatsNicknames = async() => {
+    const updateChatsNicknames = () => {
     
+            const chats = collection(FirebaseDB, `users/${authState.uid}/chats`);
     
-    
-            const userChats = collection(FirebaseDB, `users/${authState.uid}/chats`);
-            const userChatsSnap = await getDocs(userChats);
+            const userContacts = collection(FirebaseDB, `users/${authState.uid}/contacts`);
+
+
             
-    
-    
-    
-            if(!userChatsSnap.empty){
-                
-                userChatsSnap.docs.forEach(async(doc) => {
-    
-                    const contactFilter = authState.contacts.find(contact => {
-                        return contact.id === doc.data().receiver.id
-                    }) 
-    
-                    
-    
-                    await updateDoc(doc.ref, {
-                        receiver: {
-                            displayName: doc.data().receiver.displayName,
-                            email: doc.data().receiver.email,
-                            id: doc.data().receiver.id,
-                            nickname: contactFilter?.nickname || doc.data().receiver.displayName,
+            const unsubscribe = onSnapshot(userContacts, async(snapshot) => {
+                const contacts = snapshot.docs.map((doc) => {
+                    return {
+                        id: doc.id,
+                        ...doc.data(),
+                    };
+
+                });
+
+                const chatsSnap = await getDocs(chats);
+
+
+                if(!chatsSnap.empty){
+
+                    chatsSnap.docs.forEach(async(chat) => {
+
+                        const contact = contacts?.find((contact) => contact.email === chat.data().receiver.email);
+
+                        const newNickname = contact? contact.nickname : chat.data().receiver.displayName
+
+
+
+         
+                        await updateDoc(chat.ref, {
+                            receiver: {
+                                displayName: chat.data().receiver.displayName,
+                                email: chat.data().receiver.email,
+                                id: chat.data().receiver.id,
+                                nickname: newNickname,
+
+                            }
+                        });
+
+                        const LSActiveChat = JSON.parse(localStorage.getItem('activeChat')) || null;
+
+                        if(LSActiveChat){
+                            const activeChat = chatsSnap.docs.find((chat) => chat.data().receiver.id === LSActiveChat.uid);
+
+                            if(activeChat){
+                                if(activeChat.data().receiver.nickname !== newNickname){
+
+                                    const newUser = {...LSActiveChat, nickname: newNickname}
+                                    localStorage.setItem('activeChat', JSON.stringify(newUser));
+
+                                    const event = new CustomEvent('activeChatUpdate', {detail: newUser});
+
+                                    window.dispatchEvent(event);
+                                }
+                            }
                         }
-                    });
-    
-                   
-    
-                })
-    
-            };
+                    })
+                }
+            });
+
+            return unsubscribe;
     
         };
 
+
+        
+
    
-        const getChatsDB = () => {
-            setChatsLoading(true);
+    const getChatsDB = () => {
+    
             
             const chatRef = collection(FirebaseDB, `users/${authState.uid}/chats`);
+    
             
-            let updatedNicknames = new Map(); // 🔹 Guardamos nicknames ya actualizados
-        
-            const unsubscribe = onSnapshot(chatRef, async (snapshot) => {
-                const chats = snapshot.docs.map((doc) => {
-                    const { receiver, lastMessage } = doc.data();
-                    return {
-                        id: doc.id,
-                        lastMessage,
-                        ...receiver,
-                    };
-                });
-        
+            const unsubscribe = onSnapshot(chatRef, (snapshot) => {
+            
+                    const chats = snapshot.docs.map((doc) => {
+                        
+                        
+                        const {receiver, lastMessage} = doc.data();
+    
+    
+                            return {
+                                id: doc.id,
+                                lastMessage,
+                                ...receiver,
+                       };
+    
+    
+            
+                    });
+    
+                
+    
                 dispatch(setChats(chats));
-        
-                snapshot.docs.forEach(async (doc) => {
-                    const chatData = doc.data();
-                    const contact = authState.contacts.find(contact => contact.id === chatData.receiver.id);
-                    const newNickname = contact?.nickname || chatData.receiver.displayName;
-        
-                    // 🔹 Evitar bucle infinito: Solo actualizamos si el nickname es diferente Y no se ha actualizado antes
-                    if (chatData.receiver.nickname !== newNickname && updatedNicknames.get(doc.id) !== newNickname) {
-                        updatedNicknames.set(doc.id, newNickname); // 🔹 Guardamos el nickname actualizado
-        
-                        await updateDoc(doc.ref, {
-                            receiver: {
-                                displayName: chatData.receiver.displayName,
-                                email: chatData.receiver.email,
-                                id: chatData.receiver.id,
-                                nickname: newNickname,
-                            }
-                        });
-                    }
-                });
-        
-                setChatsLoading(false);
+    
+            
             });
-        
+    
             return unsubscribe;
+            
         };
 
 
@@ -226,7 +247,18 @@ export const useAuth = () => {
             }, [authState.uid]);
 
 
+            useEffect(() => {
+                        
 
+                if(!authState.uid) return;
+        
+                const unsubscribe = updateChatsNicknames();
+
+                return () => {
+                    unsubscribe();
+                }
+                      
+            }, [authState.uid])
             
 
 
@@ -257,7 +289,6 @@ export const useAuth = () => {
         onLogoutUser,
         validateLogged,
         cleanError,
-        chatsLoading
     }
 
 
