@@ -16,6 +16,7 @@ export const ChatCover = ({chat}) => {
   };
 
 
+  const lastMessage = chat.lastMessage.content.length >= 28? `${chat.lastMessage.content.substring(0, 28)}...` : chat.lastMessage.content;
 
 
   return (
@@ -37,11 +38,11 @@ export const ChatCover = ({chat}) => {
         {/* Nombre del usuario */}
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900">{chat.nickname}</h3>
-          <span className="text-sm text-gray-500">2:45 PM</span> {/* Hora del último mensaje */}
+          <span className="text-sm text-gray-500">{chat.lastMessage.timestampSerialized} PM</span> {/* Hora del último mensaje */}
         </div>
 
         {/* Último mensaje */}
-        <p className="text-sm text-gray-600 truncate">{chat.lastMessage.content}</p>
+        <p className="text-sm text-gray-600 truncate">{lastMessage}</p>
       </div>
     </div>
   );
