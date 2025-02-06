@@ -167,17 +167,19 @@ export const useAuth = () => {
                         const LSActiveChat = JSON.parse(localStorage.getItem('activeChat')) || null;
 
                         if(LSActiveChat){
-                            const activeChat = chatsSnap.docs.find((chat) => chat.data().receiver.id === LSActiveChat.uid);
+                            if(LSActiveChat.uid === chat.data().receiver.id){
+                                const activeChat = chatsSnap.docs.find((chat) => chat.data().receiver.id === LSActiveChat.uid);
 
-                            if(activeChat){
-                                if(activeChat.data().receiver.nickname !== newNickname){
+                                if(activeChat){
+                                    if(activeChat.data().receiver.nickname !== newNickname){
 
-                                    const newUser = {...LSActiveChat, nickname: newNickname}
-                                    localStorage.setItem('activeChat', JSON.stringify(newUser));
+                                        const newUser = {...LSActiveChat, nickname: newNickname}
+                                        localStorage.setItem('activeChat', JSON.stringify(newUser));
 
-                                    const event = new CustomEvent('activeChatUpdate', {detail: newUser});
+                                        const event = new CustomEvent('activeChatUpdate', {detail: newUser});
 
-                                    window.dispatchEvent(event);
+                                        window.dispatchEvent(event);
+                                    }
                                 }
                             }
                         }
