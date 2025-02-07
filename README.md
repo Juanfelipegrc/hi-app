@@ -52,20 +52,6 @@ To run this project locally, follow these steps:
    yarn dev
    ```
 
-## Project Structure
-```
-whatsapp-replica/
-│── src/
-│   ├── components/   # Reusable components
-│   ├── hooks/        # Custom hooks
-│   ├── pages/        # Application pages
-│   ├── redux/        # Redux store & slices
-│   ├── styles/       # Tailwind styles
-│── public/           # Static assets
-│── .eslintrc.json    # ESLint config
-│── package.json      # Project dependencies
-│── vite.config.js    # Vite configuration
-```
 
 ## Contributing
 Contributions are welcome! Feel free to fork the project, create a new branch, and submit a pull request.
