@@ -18,7 +18,7 @@ export const Message = ({message}) => {
 
       </div>
 
-      <span className={`text-[0.7rem] font-medium ${message.sender.id === uid? 'self-end me-4' : 'self-start ms-4'}`}>{message.message.timestampSerialized} PM</span>
+      <span className={`text-[0.7rem] mb-3 font-medium ${message.sender.id === uid? 'self-end me-4' : 'self-start ms-4'}`}>{message.message.timestampSerialized} PM</span>
     
     </>
   )
