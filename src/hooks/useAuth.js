@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { loginWithEmailAndPassword, registerWithEmailAndPassword } from "../firebase/providers";
 import {FirebaseDB} from '../firebase/config';
 import { checkingCredentials, login, logout, setChats, setContacts, setError } from "../store/slices";
-import { collection, doc, getDocs, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDocs, onSnapshot, orderBy, query, setDoc, updateDoc } from "firebase/firestore";
 import { useEffect, useRef } from "react";
 
 
@@ -199,9 +199,10 @@ export const useAuth = () => {
     
             
             const chatRef = collection(FirebaseDB, `users/${authState.uid}/chats`);
-    
+
+            const q = query(chatRef, orderBy('lastMessage.timestamp', 'desc'))
             
-            const unsubscribe = onSnapshot(chatRef, (snapshot) => {
+            const unsubscribe = onSnapshot(q, (snapshot) => {
             
                     const chats = snapshot.docs.map((doc) => {
                         
