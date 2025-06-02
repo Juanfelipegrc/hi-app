@@ -178,99 +178,99 @@ export const useActiveChat = () => {
     
     // SET LAST MESSAGE
 
-    const getLastMessage = async() => {
+    // const getLastMessage = async() => {
 
 
 
       
         
-        let lastMessageSender;
-        let lastMessageReceiver;
+    //     let lastMessageSender;
+    //     let lastMessageReceiver;
 
-        if(activeChatState?.uid?.length === 0) return;
+    //     if(activeChatState?.uid?.length === 0) return;
 
-        const receiverRefForPath = activeChatState?.uid;
+    //     const receiverRefForPath = activeChatState?.uid;
 
-        const lastMessageSenderRef = collection(FirebaseDB, `users/${senderUid}/chats/${senderUid}_${receiverRefForPath}/messages`);
+    //     const lastMessageSenderRef = collection(FirebaseDB, `users/${senderUid}/chats/${senderUid}_${receiverRefForPath}/messages`);
 
-        const chatSenderRef =  doc(FirebaseDB, `users/${senderUid}/chats/${senderUid}_${receiverRefForPath}`);
+    //     const chatSenderRef =  doc(FirebaseDB, `users/${senderUid}/chats/${senderUid}_${receiverRefForPath}`);
 
-        const lastMessageReceiverRef = collection(FirebaseDB, `users/${receiverRefForPath}/chats/${receiverRefForPath}_${senderUid}/messages`);
+    //     const lastMessageReceiverRef = collection(FirebaseDB, `users/${receiverRefForPath}/chats/${receiverRefForPath}_${senderUid}/messages`);
 
-        const chatReceiverRef = doc(FirebaseDB, `users/${receiverRefForPath}/chats/${receiverRefForPath}_${senderUid}`);
+    //     const chatReceiverRef = doc(FirebaseDB, `users/${receiverRefForPath}/chats/${receiverRefForPath}_${senderUid}`);
         
         
 
 
 
-        const querySender = query(lastMessageSenderRef, orderBy('message.timestamp', 'desc'), limit(1));
-        const queryReceiver = query(lastMessageReceiverRef, orderBy('message.timestamp', 'desc'), limit(1));
+    //     const querySender = query(lastMessageSenderRef, orderBy('message.timestamp', 'desc'), limit(1));
+    //     const queryReceiver = query(lastMessageReceiverRef, orderBy('message.timestamp', 'desc'), limit(1));
 
-        const lastMessageSenderSnap = await getDocs(querySender);
-        const lastMessageReceiverSnap = await getDocs(queryReceiver);
+    //     const lastMessageSenderSnap = await getDocs(querySender);
+    //     const lastMessageReceiverSnap = await getDocs(queryReceiver);
 
        
 
-        if(!lastMessageSenderSnap.empty){
-           lastMessageSender = {
-                content: lastMessageSenderSnap.docs[0].data().message.content,
-                sender: lastMessageSenderSnap.docs[0].data().sender.id,
-                timestamp: lastMessageSenderSnap.docs[0].data().message.timestamp,
-                timestampSerialized: lastMessageSenderSnap.docs[0].data().message.timestampSerialized,
-           };
+    //     if(!lastMessageSenderSnap.empty){
+    //        lastMessageSender = {
+    //             content: lastMessageSenderSnap.docs[0].data().message.content,
+    //             sender: lastMessageSenderSnap.docs[0].data().sender.id,
+    //             timestamp: lastMessageSenderSnap.docs[0].data().message.timestamp,
+    //             timestampSerialized: lastMessageSenderSnap.docs[0].data().message.timestampSerialized,
+    //        };
 
 
-        } else {
-            lastMessageSender = {
-                content: 'No messages yet',
-                sender: 'nobody',
-                timestamp: '',
-                timestampSerialized: '',
-            }
-        };
+    //     } else {
+    //         lastMessageSender = {
+    //             content: 'No messages yet',
+    //             sender: 'nobody',
+    //             timestamp: '',
+    //             timestampSerialized: '',
+    //         }
+    //     };
 
 
-        if(!lastMessageReceiverSnap.empty){
-            lastMessageReceiver = {
-                content: lastMessageReceiverSnap.docs[0].data().message.content,
-                sender: lastMessageReceiverSnap.docs[0].data().sender.id,
-                timestamp: lastMessageReceiverSnap.docs[0].data().message.timestamp,
-                timestampSerialized: lastMessageReceiverSnap.docs[0].data().message.timestampSerialized,
-           };
+    //     if(!lastMessageReceiverSnap.empty){
+    //         lastMessageReceiver = {
+    //             content: lastMessageReceiverSnap.docs[0].data().message.content,
+    //             sender: lastMessageReceiverSnap.docs[0].data().sender.id,
+    //             timestamp: lastMessageReceiverSnap.docs[0].data().message.timestamp,
+    //             timestampSerialized: lastMessageReceiverSnap.docs[0].data().message.timestampSerialized,
+    //        };
 
       
-        } else {
-            lastMessageReceiver = {
-                content: 'No messages yet',
-                sender: 'nobody',
-                timestamp: '',
-                timestampSerialized: '',
-            }
-        };
+    //     } else {
+    //         lastMessageReceiver = {
+    //             content: 'No messages yet',
+    //             sender: 'nobody',
+    //             timestamp: '',
+    //             timestampSerialized: '',
+    //         }
+    //     };
 
        
 
         
-        if(!lastMessageSenderSnap.empty){
-            if(lastMessageSender != undefined){
-                await updateDoc(chatSenderRef, {
-                    lastMessage: {...lastMessageSender},
-                });
+    //     if(!lastMessageSenderSnap.empty){
+    //         if(lastMessageSender != undefined){
+    //             await updateDoc(chatSenderRef, {
+    //                 lastMessage: {...lastMessageSender},
+    //             });
                 
-            }
-        }
+    //         }
+    //     }
 
-        if(!lastMessageReceiverSnap.empty){
-            if(lastMessageReceiver != undefined){
-                await updateDoc(chatReceiverRef, {
-                    lastMessage: {...lastMessageReceiver},
-                })
-            }
-        }
+    //     if(!lastMessageReceiverSnap.empty){
+    //         if(lastMessageReceiver != undefined){
+    //             await updateDoc(chatReceiverRef, {
+    //                 lastMessage: {...lastMessageReceiver},
+    //             })
+    //         }
+    //     }
 
 
 
-    };
+    // };
 
 
 
@@ -291,7 +291,7 @@ export const useActiveChat = () => {
             const unsubscribe = onSnapshot(senderChatRef, (snapshot) => {
                 snapshot.docChanges().forEach(async(change) => {
   
-                    if(change.type === 'modified' || change.type === 'removed') {
+                    if(change.type === 'modified' || change.type === 'added' || change.type === 'removed') {
 
                         const chatPath = change.doc.ref.path;
 
@@ -584,16 +584,16 @@ export const useActiveChat = () => {
 
     // OBTAIN LAST MESSAGE
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        if(senderUid.length === 0) return;
+    //     if(senderUid.length === 0) return;
 
         
 
       
-        getLastMessage();
+    //     getLastMessage();
 
-    }, [senderUid, activeChatState?.uid, activeChatState?.messages?.length]);
+    // }, [senderUid, activeChatState?.uid, activeChatState?.messages?.length]);
     
 
     
